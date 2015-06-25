@@ -29,12 +29,13 @@
 This module enables you to manage audits and verifications lists of your
 management system.
     """,
-    "depends": ['mgmtsystem_nonconformity'],
+    "depends": ['mgmtsystem_nonconformity', 'project'],
     "data": [
         'security/ir.model.access.csv',
         'security/mgmtsystem_audit_security.xml',
         'audit_sequence.xml',
         'mgmtsystem_audit.xml',
+        'project_view.xml',
         'report/audit_report.xml',
         'report/verification_list.xml',
         'board_mgmtsystem_audit.xml',
@@ -43,7 +44,7 @@ management system.
     "demo": [
         'demo_audit.xml',
     ],
-    'installable': False,
+    'installable': True,
     "certificate": ''
 }
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -19,13 +19,13 @@
 #
 ##############################################################################
 
-from tools.translate import _
-from openerp.osv import fields, orm
+from openerp.tools.translate import _
+from openerp.osv import fields, osv
 from urllib import urlencode
 from urlparse import urljoin
 
 
-class mgmtsystem_audit(orm.Model):
+class mgmtsystem_audit(osv.Model):
     _name = "mgmtsystem.audit"
     _description = "Audit"
     _inherit = ['mail.thread']
@@ -79,7 +79,8 @@ class mgmtsystem_audit(orm.Model):
             'State',
         ),
         'system_id': fields.many2one('mgmtsystem.system', 'System'),
-        'company_id': fields.many2one('res.company', 'Company')
+        'company_id': fields.many2one('res.company', 'Company'),
+        'task_id': fields.many2one('project.task', 'Task'),
     }
 
     _defaults = {
@@ -140,7 +141,7 @@ class mgmtsystem_audit(orm.Model):
         )
 
 
-class mgmtsystem_verification_line(orm.Model):
+class mgmtsystem_verification_line(osv.Model):
     _name = "mgmtsystem.verification.line"
     _description = "Verification Line"
     _columns = {
@@ -173,7 +174,7 @@ class mgmtsystem_verification_line(orm.Model):
     }
 
 
-class mgmtsystem_nonconformity(orm.Model):
+class mgmtsystem_nonconformity(osv.Model):
     _name = "mgmtsystem.nonconformity"
     _inherit = "mgmtsystem.nonconformity"
     _columns = {
