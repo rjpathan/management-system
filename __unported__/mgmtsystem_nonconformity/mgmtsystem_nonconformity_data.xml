@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data noupdate="1">
 
         <!-- Severity: Critical, Major, Minor, Invalid, ... -->
-        <record id="nonconformity_severity_maj" model="mgmtsystem.nonconformity.severity">
+        <!--record id="nonconformity_severity_maj" model="mgmtsystem.nonconformity.severity">
             <field name="name">Major</field>
             <field name="active" eval="True"/>
         </record>
@@ -15,6 +14,21 @@
 
         <record id="nonconformity_severity_no" model="mgmtsystem.nonconformity.severity">
             <field name="name">Unfounded</field>
+            <field name="active" eval="True"/>
+        </record-->
+
+        <record id="nonconformity_severity_low" model="mgmtsystem.nonconformity.severity">
+            <field name="name">Low</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="nonconformity_severity_medium" model="mgmtsystem.nonconformity.severity">
+            <field name="name">Medium</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="nonconformity_severity_high" model="mgmtsystem.nonconformity.severity">
+            <field name="name">High</field>
             <field name="active" eval="True"/>
         </record>
 
@@ -91,4 +105,5 @@
         </record>
 
     </data>
+
 </openerp>
