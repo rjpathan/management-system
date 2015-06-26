@@ -93,6 +93,7 @@ Contributors
     "depends": [
         'mgmtsystem_action',
         'document_page_procedure',
+		'project',
     ],
     "data": [
         'security/ir.model.access.csv',
@@ -102,9 +103,11 @@ Contributors
         'nonconformity_sequence.xml',
         'board_mgmtsystem_nonconformity.xml',
         'mgmtsystem_nonconformity_data.xml',
+		'report.xml',
+		'views/nonconformity.xml',
     ],
     "demo": [
         'demo_nonconformity.xml',
     ],
-    'installable': False,
+    'installable': True,
 }
