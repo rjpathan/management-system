@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+<template id="nonconformity_document">
+    <t t-call="report.external_layout">
+        <div class="page">
+            <div class="row">
+                <div class="col-xs-5 col-xs-offset-7">
+                    <font color="white">
+                            <span t-field="o.id"/><span t-field="o.id"/><span t-field="o.id"/><span t-field="o.id"/>
+                    </font>
+                </div>
+            </div>
+
+            <h2 class="text-center"> <u> Nonconformity Report</u></h2>
+
+			<div class="row">
+                <div class="col-xs-5 col-xs-offset-7">
+                    <font color="white">
+                            <span t-field="o.id"/><span t-field="o.id"/>
+                    </font>
+                </div>
+            </div>
+
+            <p t-if="o.ref">
+				<font> <strong>Nonconformity Reference : </strong> <span t-field="o.ref" /> </font>
+            </p>
+
+			<p t-if="o.description_type == 'url'">
+				<font>
+					<strong>Attached URL : </strong>
+					<a> <span t-field="o.url"/> </a>
+				</font>
+			</p>
+
+			<p t-if="o.description_type == 'image'">
+				<strong>Attached Screenshot : </strong><br/>
+				<img t-att-src="'data:image/png;base64,%s' % o.image" style="max-height: 250px;"/>
+			</p>
+
+			<p>
+			  <font>
+				<strong>Classification : </strong>
+				<span  t-field="o.severity_id.name"/>
+			  </font>
+			</p>
+
+			<p>
+			  <font>
+				<strong>Vulnerability : </strong>
+				<span  t-field="o.description"/>
+			  </font>
+			</p>
+
+			<p>
+			  <font>
+				<strong>Solution : </strong>
+				<span  t-field="o.immediate_action_id.name"/><br/>
+				<span  t-field="o.immediate_action_id.description"/>
+			  </font>
+			</p>
+
+        </div>
+    </t>
+</template>
+
+<template id="nonconformity">
+    <t t-call="report.html_container">
+        <t t-foreach="doc_ids" t-as="doc_id">
+            <t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang', 'mgmtsystem_nonconformity.nonconformity_document')"/>
+        </t>
+    </t>
+</template>
+</data>
+</openerp>

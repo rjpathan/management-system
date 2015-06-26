@@ -1,0 +1,14 @@
+<openerp>
+	<data>
+
+        <report 
+            string="Nonconformity Report" 
+            id="action_report_nonconformity"
+            model="mgmtsystem.nonconformity" 
+            report_type="qweb-pdf"
+            name="mgmtsystem_nonconformity.nonconformity"
+            file="mgmtsystem_nonconformity.nonconformity"
+        />
+
+	</data>
+</openerp>
