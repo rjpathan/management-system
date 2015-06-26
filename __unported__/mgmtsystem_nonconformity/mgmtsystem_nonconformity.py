@@ -21,8 +21,8 @@
 
 from openerp.tools.translate import _
 from openerp import netsvc
-from openerp.osv import fields, orm
-from openerp.addons.base_status.base_state import base_state
+from openerp.osv import fields, orm, osv
+#from openerp.addons.base_status.base_state import base_state
 from openerp.tools import (
     DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT,
     DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT,
@@ -31,7 +31,7 @@ from openerp.tools import (
 import time
 
 
-class mgmtsystem_nonconformity_cause(orm.Model):
+class mgmtsystem_nonconformity_cause(osv.Model):
     """
     Cause of the nonconformity of the management system
     """
@@ -82,7 +82,7 @@ class mgmtsystem_nonconformity_cause(orm.Model):
     ]
 
 
-class mgmtsystem_nonconformity_origin(orm.Model):
+class mgmtsystem_nonconformity_origin(osv.Model):
     """
     Origin of nonconformity of the management system
     """
@@ -126,7 +126,7 @@ class mgmtsystem_nonconformity_origin(orm.Model):
     }
 
 
-class mgmtsystem_nonconformity_severity(orm.Model):
+class mgmtsystem_nonconformity_severity(osv.Model):
     """Nonconformity Severity - Critical, Major, Minor, Invalid, ..."""
     _name = "mgmtsystem.nonconformity.severity"
     _description = "Severity of Complaints and Nonconformities"
@@ -152,7 +152,7 @@ _STATES = [
 _STATES_DICT = dict(_STATES)
 
 
-class mgmtsystem_nonconformity(base_state, orm.Model):
+class mgmtsystem_nonconformity(osv.Model):
     """
     Management System - Nonconformity
     """
@@ -171,10 +171,10 @@ class mgmtsystem_nonconformity(base_state, orm.Model):
     _columns = {
         # 1. Description
         'id': fields.integer('ID', readonly=True),
-        'ref': fields.char('Reference', size=64, required=True, readonly=True),
-        'date': fields.date('Date', required=True),
-        'partner_id': fields.many2one('res.partner', 'Partner', required=True),
-        'reference': fields.char('Related to', size=50),
+        'ref': fields.char('ID', size=64, required=True, readonly=True, help="ID for this Vulnerability", track_visibility='onchange'),
+        'date': fields.date('Date', required=True, help="Date of Creation of this Vulnerability"),
+        'partner_id': fields.many2one('res.partner', 'Client', required=True, track_visibility='onchange'),
+        'reference': fields.char('Name', size=50, track_visibility='onchange'),
         'responsible_user_id': fields.many2one(
             'res.users',
             'Responsible',
@@ -201,14 +201,14 @@ class mgmtsystem_nonconformity(base_state, orm.Model):
             'nonconformity_id', 'procedure_id', 'Procedure'
         ),
         'description': fields.text('Description', required=True),
-        'state': fields.selection(_STATES, 'State', readonly=True),
+        'state': fields.selection(_STATES, 'State', readonly=True, track_visibility='onchange'),
         'state_name': fields.function(
             _state_name,
             string='State Description',
             type='char',
             size=40,
         ),
-        'system_id': fields.many2one('mgmtsystem.system', 'System'),
+        'system_id': fields.many2one('mgmtsystem.system', 'Audit Type', track_visibility='onchange'),
         # 2. Root Cause Analysis
         'cause_ids': fields.many2many(
             'mgmtsystem.nonconformity.cause',
@@ -219,13 +219,14 @@ class mgmtsystem_nonconformity(base_state, orm.Model):
         ),
         'severity_id': fields.many2one(
             'mgmtsystem.nonconformity.severity',
-            'Severity',
+            'Risk Level', track_visibility='onchange'
         ),
         'analysis': fields.text('Analysis'),
         'immediate_action_id': fields.many2one(
             'mgmtsystem.action',
-            'Immediate action',
+            'Resolution',
             domain="[('nonconformity_id', '=', id)]",
+			track_visibility='onchange'
         ),
         'analysis_date': fields.datetime('Analysis Date', readonly=True),
         'analysis_user_id': fields.many2one(
@@ -264,6 +265,12 @@ class mgmtsystem_nonconformity(base_state, orm.Model):
         ),
         # Multi-company
         'company_id': fields.many2one('res.company', 'Company'),
+
+        'description_type': fields.selection([('image', 'Screenshot'),('url', 'URL')], 'Attachment Type'),
+        'image': fields.binary('Image'),
+		'url': fields.char('URL'),
+		'nonconformity_type': fields.many2one('nonconformity.type', 'Type', track_visibility='onchange'),
+		'origin_id': fields.many2one('project.project', 'Origin', track_visibility='onchange'),
     }
 
     _defaults = {
@@ -273,7 +280,7 @@ class mgmtsystem_nonconformity(base_state, orm.Model):
         'date': lambda *a: time.strftime(DATE_FORMAT),
         'state': 'draft',
         'author_user_id': lambda cr, uid, id, c={}: id,
-        'ref': 'NEW',
+        #'ref': 'NEW',
     }
 
     def create(self, cr, uid, vals, context=None):
@@ -309,7 +316,7 @@ class mgmtsystem_nonconformity(base_state, orm.Model):
                 o = self.browse(cr, uid, ids, context=context)[0]
                 post = _('''
 <br />
-<ul><li> <b>Stage:</b> %s \xe2\x86\x92 %s</li></ul>\
+<ul><li> <b>Stage:</b> %s &#8594; %s</li></ul>\
 ''') % (o.state, data['state'])
                 msg += post
             self.message_post(cr, uid, [id], body=msg, context=context)
@@ -481,6 +488,11 @@ class mgmtsystem_nonconformity(base_state, orm.Model):
         }
         return self.write(cr, uid, ids, vals, context=context)
 
+    def onchange_project_id(self, cr, uid, ids, project_id, context=None):
+        if not project_id:
+            return {}
+        project = self.pool.get('project.project').browse(cr, uid, [project_id])[0]
+        return {'value': {'manager_user_id': project.user_id.id}}
 
 class mgmtsystem_action(orm.Model):
     _inherit = "mgmtsystem.action"
@@ -499,3 +511,10 @@ class mgmtsystem_action(orm.Model):
             readonly=True,
         ),
     }
+
+class nonconformity_type(osv.Model):
+   _name = "nonconformity.type"
+
+   _columns = {
+       'name': fields.char('Type', required="1"),
+	}

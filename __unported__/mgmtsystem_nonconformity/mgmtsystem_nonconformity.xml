@@ -82,24 +82,34 @@
                         <button name="case_reset" string="Reset to New" states="done,cancel" type="object"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,analysis,pending,open,done"/>
                     </header>
-                <sheet string="Non-Conformity">
+	                <sheet string="Non-Conformity">
+						<h1>
+			                <label string="ID"/>
+							<field name="ref" attrs="{'readonly':[('state','not in',['draft'])]}" class="oe_inline"/>
+			            </h1>
                     <group>
                         <group>
-                        	<field name="ref" attrs="{'readonly':[('state','not in',['draft'])]}"/>
-                        	<field name="date" attrs="{'readonly':[('state','not in',['draft'])]}"/>
+							<field name="reference" required="1" attrs="{'readonly':[('state','not in',['draft','analysis'])]}"/>
+							<field name="nonconformity_type" attrs="{'readonly':[('state','not in',['draft','analysis'])]}"/>
                         	<field name="partner_id" attrs="{'readonly':[('state','not in',['draft','analysis'])]}"/>
-                        	<field name="reference" attrs="{'readonly':[('state','not in',['draft'])]}"/>
-                        	<field name="origin_ids" widget="many2many_tags" attrs="{'readonly':[('state','not in',['draft','analysis'])]}"/>
+                        	<field name="origin_id" on_change="onchange_project_id(origin_id)" attrs="{'readonly':[('state','not in',['draft','analysis'])]}"/>
+							<field name="manager_user_id" attrs="{'readonly':[('state','not in',['draft','analysis'])]}"/>
                     	</group>
                         <group>
-                        	<field name="responsible_user_id" attrs="{'readonly':[('state','not in',['draft','analysis'])]}"/>
-                        	<field name="manager_user_id" attrs="{'readonly':[('state','not in',['draft','analysis'])]}"/>
-                        	<field name="author_user_id" attrs="{'readonly':[('state','not in',['draft'])]}"/>
+							<field name="date" attrs="{'readonly':[('state','not in',['draft'])]}"/>
                         	<field name="system_id" attrs="{'readonly':[('state','not in',['draft','analysis'])]}"/>
-                                <field name="company_id" groups="base.group_multi_company"/>
+							<field name="severity_id" attrs="{'readonly':[('state','not in',['draft','analysis'])]}" required="1"/>
+                        	<field name="responsible_user_id" attrs="{'readonly':[('state','not in',['draft','analysis'])]}"/>
+                        	<field name="author_user_id" attrs="{'readonly':[('state','not in',['draft'])]}"/>
+
+							<field name="company_id" groups="base.group_multi_company"/>
                     	</group>
                     </group>
-
+					<group col="6">
+						<field name="description_type"/>
+						<field name="image" widget='image' class="oe_left oe_avatar" options='{"size": [140, 120]}' attrs="{'required': [('description_type','=','image')], 'invisible': [('description_type', '!=', 'image')]}"/>
+						<field name="url" widget="url" attrs="{'required': [('description_type','=','url')], 'invisible': [('description_type', '!=', 'url')]}"/>
+					</group>
                     <notebook>
 
                         <page string="Description">
@@ -119,10 +129,6 @@
 
                             <separator string="Analysis Confirmation"/>
                             <group>
-                                <group>
-                                <field name="severity_id" attrs="{'readonly':[('state','not in',['analysis'])]}"/>
-                                <field name="immediate_action_id" domain="[('type_action','=','immediate')]" attrs="{'readonly':[('state','not in',['analysis'])]}"/>
-                            </group>
                                 <group>
                                 <field name="analysis_user_id"/>
                                 <field name="analysis_date"/>
@@ -159,6 +165,16 @@
                                 </group>
                             </group>
                         </page>
+						<page string="Resolution" attrs="{'invisible':[('state','not in',['analysis', 'pending', 'open', 'done'])]}">
+							<group>
+								<group>
+									<field name="immediate_action_id" domain="[('type_action','=','immediate')]" attrs="{'readonly':[('state','not in',['open', 'analysis'])], 'required': [('state','=','open')]}"/>
+								</group>
+								<group>
+									<label string=""/>
+								</group>
+							</group>
+						</page>
 
                     </notebook>
                 </sheet>
@@ -196,11 +212,13 @@
             <field name="model">mgmtsystem.nonconformity.origin</field>
             <field name="arch" type="xml">
                 <form string="Origins of nonconformity">
-                    <field name="name"/>
-                    <field name="sequence"/>
-                    <field name="parent_id"/>
-                    <field name="ref_code"/>
-                    <field name="description" colspan="4"/>
+					<group col="4">
+		                <field name="name"/>
+		                <field name="sequence"/>
+		                <field name="parent_id"/>
+		                <field name="ref_code"/>
+		                <field name="description" colspan="4"/>
+					</group>
                 </form>
             </field>
         </record>
@@ -254,11 +272,13 @@
             <field name="model">mgmtsystem.nonconformity.cause</field>
             <field name="arch" type="xml">
                 <form string="Causes of nonconformity">
-                <field name="name"/>
-                <field name="sequence"/>
-                    <field name="parent_id"/>
-                    <field name="ref_code"/>
-                <field name="description" colspan="4"/>
+				<group col="4">
+		            <field name="name" colspan="4"/>
+		            <field name="sequence"/>
+	                <field name="parent_id"/>
+	                <field name="ref_code"/>
+		            <field name="description" colspan="4"/>
+				</group>
                 </form>
             </field>
         </record>
@@ -311,10 +331,12 @@
             <field name="model">mgmtsystem.nonconformity.severity</field>
             <field name="arch" type="xml">
                 <form string="Severity of Complaints and Nonconformities">
+					<group col="4">
                         <field name="name"/>
                         <field name="sequence"/>
                         <field name="description" colspan="2"/>
                         <field name="active"/>
+					</group>
                 </form>
             </field>
         </record>
